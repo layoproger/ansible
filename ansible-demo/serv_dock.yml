@@ -5,7 +5,7 @@
     - block:
       - name: Установка universe
         apt_repository:
-          repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_distribution_release }} universe"
+          repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_facts['distribution_release'] }} universe"
           state: present
       
       - name: Установка зависимостей
