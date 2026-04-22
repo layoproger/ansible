@@ -1,0 +1,60 @@
+# Ansible
+*.retry
+ansible.log
+*.vault_pass
+.vault_pass.txt
+vault_pass.sh
+
+# Python / Virtualenv
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Pre-commit cache
+.cache/
+.pre-commit-cache/
+
+# Secrets and sensitive data
+secrets.yml
+*_secrets.yml
+*.key
+*.pem
+!id_rsa.pub
+
+# Inventory files (если содержат IP/пароли)
+inventory.ini
+hosts.ini
+*.retry
+
+# Terraform (если будете использовать)
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Docker
+*.log
+docker-compose.override.yml
+
+# OS junk
+Thumbs.db
+*.tmp
+*.bak
