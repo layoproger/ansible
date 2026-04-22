@@ -1,69 +1,75 @@
-- name: Автоматизированная установка docker
+---
+- name: Установка Docker
   hosts: dock
   become: true
   tasks:
-    - block:
-      - name: Установка universe
-        apt_repository:
-          repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_facts['distribution_release'] }} universe"
-          state: present
-      
-      - name: Установка зависимостей
-        apt:
-          name:
-            - ca-certificates
-            - curl
-          update_cache: yes
-          cache_valid_time: 86400
+    - name: Установка Docker
+      block:
+        - name: Добавление репозитория Universe
+          ansible.builtin.apt_repository:
+            repo: "deb http://archive.ubuntu.com/ubuntu {{ ansible_facts['distribution_release'] }} universe"
+            state: present
+            update_cache: true
 
-      - name: Создание директории для ключей
-        file:
-          path: /etc/apt/keyrings
-          state: directory
-          mode: '0755'
+        - name: Установка системных зависимостей
+          ansible.builtin.apt:
+            name:
+              - ca-certificates
+              - curl
+            state: present
+            update_cache: true
+            cache_valid_time: 86400
 
-      - name: Скачивание Docker GPG ключа
-        get_url:
-          url: https://download.docker.com/linux/ubuntu/gpg
-          dest: /etc/apt/keyrings/docker.asc
-          mode: '0644'
-      
-      - name: Добавление репозитория Docker
-        copy:
-          content: |
-            Types: deb
-            URIs: https://download.docker.com/linux/ubuntu
-            Suites: {{ ansible_distribution_release }}
-            Components: stable
-            Architectures: amd64
-            Signed-By: /etc/apt/keyrings/docker.asc
-          dest: /etc/apt/sources.list.d/docker.sources
-          mode: '0644'
-      
-      - name: обновление кеша
-        apt:
-          update_cache: yes
-      
-      - name: установка пакета dock-ce
-        apt:
-          name:
-            - docker-ce
-            - docker-ce-cli
-            - containerd.io
-            - docker-buildx-plugin
-            - docker-compose-plugin
-      
-      - name: перезапуск сервиса
-        ansible.builtin.service:
-          name: docker
-          state: restarted
+        - name: Создание директории для ключей
+          ansible.builtin.file:
+            path: /etc/apt/keyrings
+            state: directory
+            mode: '0755'
 
-      - name: добавление user в группу docker
-        ansible.builtin.user:
-          name: "{{ ansible_user }}"
-          groups: docker
-          append: yes
-      
-      - name: Reboot
-        ansible.builtin.reboot:
-          reboot_timeout: 3600
+        - name: Скачивание Docker GPG ключа
+          ansible.builtin.get_url:
+            url: https://download.docker.com/linux/ubuntu/gpg
+            dest: /etc/apt/keyrings/docker.asc
+            mode: '0644'
+
+        - name: Добавление репозитория Docker
+          ansible.builtin.copy:
+            content: |
+              Types: deb
+              URIs: https://download.docker.com/linux/ubuntu
+              Suites: {{ ansible_facts['distribution_release'] }}
+              Components: stable
+              Architectures: amd64
+              Signed-By: /etc/apt/keyrings/docker.asc
+            dest: /etc/apt/sources.list.d/docker.sources
+            mode: '0644'
+
+        - name: Обновление кеша
+          ansible.builtin.apt:
+            update_cache: true
+
+        - name: Установка пакета Docker CE
+          ansible.builtin.apt:
+            name:
+              - docker-ce
+              - docker-ce-cli
+              - containerd.io
+              - docker-buildx-plugin
+              - docker-compose-plugin
+            state: present
+
+        - name: Перезапуск сервиса
+          ansible.builtin.service:
+            name: docker
+            state: restarted
+            enabled: true
+
+        - name: Добавление пользователя в группу docker
+          ansible.builtin.user:
+            name: "{{ ansible_user }}"
+            groups: docker
+            append: true
+
+        - name: Перезагрузка сервера
+          ansible.builtin.reboot:
+            reboot_timeout: 300
