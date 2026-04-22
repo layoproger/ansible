@@ -1,0 +1,20 @@
+- name: Сервер на nginx
+  hosts: nginx
+  become: true
+  tasks:
+
+    - name: Создание сети
+      community.docker.docker_network:
+        name: ng
+
+    - name: Создание контейнера
+      community.docker.docker_container:
+        name: nginx_server
+        image: nginx:latest
+        volumes:
+          - /home/layoshka/ansible/ansible-demo/nginx_cfg/default.conf:/etc/nginx/conf.d/default.conf
+          - /home/layoshka/ansible/ansible-demo/nginx_cfg/index.html:/usr/share/nginx/html
+        ports:
+          - 8081:80
+        networks:
+          - name: ng

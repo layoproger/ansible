@@ -58,3 +58,7 @@ docker-compose.override.yml
 Thumbs.db
 *.tmp
 *.bak
+
+#files
+nginx_cfg/
+ansible-demo/ansible.cfg
