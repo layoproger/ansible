@@ -60,5 +60,4 @@ Thumbs.db
 *.bak
 
 #files
-nginx_cfg/
 ansible-demo/ansible.cfg
