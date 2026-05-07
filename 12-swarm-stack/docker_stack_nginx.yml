@@ -3,7 +3,7 @@ services:
   nginx:
     image: nginx:latest
     configs:
-      - source: nginx.conf
+      - source: default.conf
         target: /etc/nginx/conf.d/default.conf
     deploy:
       mode: global
@@ -25,7 +25,7 @@ services:
 
 configs:
   nginx.conf:
-    file: ./nginx.conf
+    file: ./default.conf
 
 networks:
   myNetwork:
