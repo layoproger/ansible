@@ -1,0 +1,35 @@
+---
+services:
+  nginx:
+    image: nginx:latest
+    configs:
+      - source: nginx.conf
+        target: /etc/nginx/conf.d/default.conf
+    deploy:
+      mode: global
+    networks:
+      - myNetwork
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_PASSWORD=examplepass
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    deploy:
+      placement:
+        constraints:
+          - "node.labels.pg_db == true"
+    networks:
+      - myNetwork
+
+configs:
+  nginx.conf:
+    file: ./nginx.conf
+
+networks:
+  myNetwork:
+    driver: overlay
+
+volumes:
+  pgdata: {}
