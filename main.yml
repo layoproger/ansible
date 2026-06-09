@@ -5,19 +5,26 @@
   vars_files:
     - vault.yml
   tasks:
-    - name: Создание + шара
+    - name: Создание пользователей с SSH-ключами
       ansible.builtin.user:
         name: "{{ item.name }}"
         password: "{{ item.password }}"
         create_home: true
-        group: "{{ item.group }}"
+        groups: "{{ item.group }}"
+        append: true
         generate_ssh_key: true
         ssh_key_file: .ssh/id_rsa
       loop: "{{ users }}"
 
-    - name: Ключи
-      ansible.posix.authorized_key:
-        user: "{{ item.name }}"
-        state: present
-        key: "{{ lookup('file', '/home/' + item.name + '/.ssh/id_rsa.pub') }}"
+    - name: Чтение публичного ключа с удалённого хоста
+      ansible.builtin.slurp:
+        src: "/home/{{ item.name }}/.ssh/id_rsa.pub"
+      register: pubkey
       loop: "{{ users }}"
+
+    - name: Добавление публичного ключа в authorized_keys
+      ansible.posix.authorized_key:
+        user: "{{ item.0.name }}"
+        state: present
+        key: "{{ item.1.content | b64decode }}"
+      loop: "{{ users | zip(pubkey.results) | list }}"
