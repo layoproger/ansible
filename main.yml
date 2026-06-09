@@ -1,0 +1,23 @@
+---
+- name: Создание пользователей
+  hosts: all
+  become: true
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Создание + шара
+      ansible.builtin.user:
+        name: "{{ item.name }}"
+        password: "{{ item.password }}"
+        create_home: true
+        group: "{{ item.group }}"
+        generate_ssh_key: true
+        ssh_key_file: .ssh/id_rsa
+      loop: "{{ users }}"
+
+    - name: Ключи
+      ansible.posix.authorized_key:
+        user: "{{ item.name }}"
+        state: present
+        key: "{{ lookup('file', '/home/' + item.name + '/.ssh/id_rsa.pub') }}"
+      loop: "{{ users }}"
